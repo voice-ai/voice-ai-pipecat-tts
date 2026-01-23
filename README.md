@@ -24,7 +24,7 @@ This integration provides streaming text-to-speech capabilities using Voice.AI's
 Clone the repository and install in editable mode:
 
 ```bash
-git clone https://github.com/voice-ai/pipecat-voice-ai.git
+git clone https://github.com/voice-ai/voice-ai-pipecat-tts.git
 cd pipecat-voice-ai
 pip install -e .
 ```
