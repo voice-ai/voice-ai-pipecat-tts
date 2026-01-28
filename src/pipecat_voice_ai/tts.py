@@ -69,22 +69,19 @@ def language_to_voiceai_language(language: Language) -> Optional[str]:
 
 
 class VoiceAiTTSService(InterruptibleTTSService):
-    """Text-to-speech service using Voice.AI's WebSocket API with persistent connection.
+    """Text-to-speech service using Voice.AI's WebSocket API.
 
     Converts text to speech using Voice.AI's TTS models with support for multiple
-    languages. Maintains a persistent WebSocket connection for efficient streaming,
-    with automatic reconnection on interruption.
+    languages. Creates a new WebSocket connection for each TTS request.
 
     Supported features:
 
-    - Persistent WebSocket connection for low latency
     - Multiple language support (en, ca, sv, es, fr, de, it, pt, pl, ru, nl)
     - Configurable voice selection
     - Temperature and top_p control for generation variety
     - Raw PCM audio output at 32kHz mono
     - Multiple TTS model options
     - Automatic interruption handling
-    - Connection keepalive for idle timeout prevention
 
     Example::
 
@@ -136,7 +133,7 @@ class VoiceAiTTSService(InterruptibleTTSService):
         params: Optional[InputParams] = None,
         **kwargs,
     ):
-        """Initialize the Voice.AI TTS service with persistent WebSocket connection.
+        """Initialize the Voice.AI TTS service.
 
         Args:
             api_key: Voice.AI API key for authentication (format: vk_*).
@@ -166,7 +163,6 @@ class VoiceAiTTSService(InterruptibleTTSService):
         # WebSocket state
         self._websocket = None
         self._receive_task = None
-        self._keepalive_task = None
         self._started = False
         self._disconnecting = False
         
@@ -255,33 +251,22 @@ class VoiceAiTTSService(InterruptibleTTSService):
         if self._websocket and not self._receive_task:
             self._receive_task = self.create_task(self._receive_task_handler(self._report_error))
 
-        if self._websocket and not self._keepalive_task:
-            self._keepalive_task = self.create_task(self._keepalive_task_handler())
-
     async def _disconnect(self):
         """Disconnect from Voice.AI WebSocket and clean up tasks."""
         await super()._disconnect()
 
         try:
-            # Set flag to prevent new operations
             self._disconnecting = True
 
-            # Cancel background tasks BEFORE closing websocket
             if self._receive_task:
                 await self.cancel_task(self._receive_task, timeout=2.0)
                 self._receive_task = None
 
-            if self._keepalive_task:
-                await self.cancel_task(self._keepalive_task, timeout=2.0)
-                self._keepalive_task = None
-
-            # Now close the websocket
             await self._disconnect_websocket()
 
         except Exception as e:
             await self.push_error(error_msg=f"Error during disconnect: {e}", exception=e)
         finally:
-            # Reset state
             self._started = False
             self._websocket = None
             self._disconnecting = False
@@ -338,6 +323,24 @@ class VoiceAiTTSService(InterruptibleTTSService):
             self._started = False
             self._websocket = None
             await self._call_event_handler("on_disconnected")
+
+    async def _cleanup_connection(self):
+        """Clean up closed connection after request completion."""
+        try:
+            if self._receive_task:
+                await self.cancel_task(self._receive_task, timeout=1.0)
+                self._receive_task = None
+            
+            if self._websocket:
+                try:
+                    await self._websocket.close()
+                except:
+                    pass
+                self._websocket = None
+                
+            self._started = False
+        except Exception as e:
+            logger.debug(f"Error during connection cleanup: {e}")
 
     def _get_websocket(self):
         """Get the current websocket connection.
@@ -407,25 +410,6 @@ class VoiceAiTTSService(InterruptibleTTSService):
                 logger.error(f"Error in receive task: {e}")
                 await report_error(ErrorFrame(error=f"Voice.AI receive error: {e}", exception=e))
 
-    async def _keepalive_task_handler(self):
-        """Background task to send keepalive messages."""
-        KEEPALIVE_SLEEP = 30  # Send keepalive every 30 seconds
-        while True:
-            await asyncio.sleep(KEEPALIVE_SLEEP)
-            await self._send_keepalive()
-
-    async def _send_keepalive(self):
-        """Send keepalive ping to maintain connection."""
-        if self._disconnecting:
-            return
-
-        if self._websocket and self._websocket.state == State.OPEN:
-            try:
-                await self._websocket.ping()
-                logger.debug("Sent keepalive ping to Voice.AI")
-            except Exception as e:
-                logger.warning(f"Keepalive ping failed: {e}")
-
     async def _send_text(self, text: str):
         """Send text-only message to Voice.AI for synthesis.
 
@@ -449,11 +433,10 @@ class VoiceAiTTSService(InterruptibleTTSService):
 
     @traced_tts
     async def run_tts(self, text: str) -> AsyncGenerator[Frame, None]:
-        """Generate speech from text using Voice.AI's persistent WebSocket connection.
+        """Generate speech from text using Voice.AI's WebSocket API.
 
-        Sends text to the already-established WebSocket connection. Audio frames are
-        received asynchronously via the background receive task and pushed downstream.
-        Waits for completion signal before returning.
+        Creates a WebSocket connection, sends text for synthesis, and receives audio.
+        Connection closes automatically after completion.
 
         Args:
             text: The text to synthesize into speech.
@@ -486,20 +469,22 @@ class VoiceAiTTSService(InterruptibleTTSService):
             await self._send_text(text)
 
             # Wait for audio to complete (is_last signal received)
-            # This ensures all audio chunks are received before we return
             await self._audio_completion_event.wait()
             
             logger.debug(f"Audio generation complete for: {text[:50]}...")
 
             await self.start_tts_usage_metrics(text)
+            
+            # Voice.AI closes connection after each request
+            await self._cleanup_connection()
 
         except Exception as e:
             logger.error(f"Error in Voice.AI TTS: {e}")
             yield ErrorFrame(error=f"Voice.AI TTS error: {e}", exception=e)
             await self.stop_ttfb_metrics()
             yield TTSStoppedFrame()
+            await self._cleanup_connection()
         finally:
-            # Clean up completion event
             self._audio_completion_event = None
 
     async def _report_error(self, error: ErrorFrame):

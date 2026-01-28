@@ -16,7 +16,7 @@ This integration provides streaming text-to-speech capabilities using Voice.AI's
 
 ### Prerequisites
 
-- Python 3.9 or higher
+- Python 3.10 or higher
 - Voice.AI API key (get one at [voice.ai](https://voice.ai))
 
 ### Install
@@ -27,6 +27,7 @@ Clone the repository and install in editable mode:
 git clone https://github.com/voice-ai/voice-ai-pipecat-tts.git
 cd pipecat-voice-ai
 pip install -e .
+pip install -e ".[examples]"  # Optional: for running examples
 ```
 
 ## Quick Start
@@ -114,7 +115,7 @@ python examples/simple_tts.py
 Full conversational bot with microphone input:
 
 ```bash
-pip install pipecat-ai[local,openai,silero]  # Additional dependencies
+pip install -e ".[examples]"  # Install example dependencies
 python examples/microphone_example.py
 ```
 
@@ -135,7 +136,7 @@ For more help, open an issue or join the [Pipecat Discord](https://discord.gg/pi
 - **Base Class**: `InterruptibleTTSService` from Pipecat
 - **Connection**: Persistent WebSocket with automatic reconnection
 - **Audio Format**: Raw PCM at 32kHz mono (no decoding libraries needed)
-- **Tested with**: Pipecat v0.0.101+
+- **Tested with**: Pipecat v0.0.100+
 
 ## Links
 

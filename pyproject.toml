@@ -9,11 +9,16 @@ description = "Voice.AI TTS service integration for Pipecat"
 authors = [{name = "Voice.AI", email = "support@voice.ai"}]
 requires-python = ">=3.9"
 dependencies = [
-    "pipecat-ai>=0.0.101",
+    "pipecat-ai>=0.0.100",
     "websockets>=14.0",
     "python-dotenv>=1.0.0",
     "loguru>=0.7.0",
     "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+examples = [
+    "pipecat-ai[local,openai,silero]>=0.0.100",
 ]
 
 [tool.setuptools.packages.find]
