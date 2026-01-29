@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Voice.AI TTS Service with Live Microphone Input
+Voice.ai TTS Service with Live Microphone Input
 
-This example demonstrates the Voice.AI TTS service in a full conversational pipeline
+This example demonstrates the Voice.ai TTS service in a full conversational pipeline
 using your local microphone and speakers. Talk to the bot and hear it respond
-using Voice.AI TTS!
+using Voice.ai TTS!
 
 Requirements:
     - pip install pipecat-ai[local,openai,silero]
@@ -46,7 +46,7 @@ from pipecat.services.openai.stt import OpenAISTTService
 # Local audio transport
 from pipecat.transports.local.audio import LocalAudioTransport, LocalAudioTransportParams
 
-# Voice.AI TTS service
+# Voice.ai TTS service
 from pipecat_voice_ai.tts import VoiceAiTTSService
 
 load_dotenv()
@@ -58,7 +58,7 @@ logger.add(sys.stderr, level="DEBUG")
 async def main():
     """Run the conversational bot with microphone input."""
     logger.info("=" * 70)
-    logger.info("Voice.AI TTS Microphone Test")
+    logger.info("Voice.ai TTS Microphone Test")
     logger.info("=" * 70)
 
     # Validate API keys
@@ -83,7 +83,7 @@ async def main():
         LocalAudioTransportParams(
             audio_in_enabled=True,  # Enable microphone input
             audio_out_enabled=True,  # Enable speaker output
-            audio_out_sample_rate=32000,  # Match Voice.AI's 32kHz output (avoids resampling!)
+            audio_out_sample_rate=32000,  # Match Voice.ai's 32kHz output
             vad_analyzer=SileroVADAnalyzer(
                 params=VADParams(
                     stop_secs=0.5  # Wait 0.5s of silence before considering speech ended
@@ -104,7 +104,7 @@ async def main():
     llm = OpenAILLMService(api_key=openai_api_key, model="gpt-4o-mini")
     logger.info("[OK] LLM: OpenAI GPT-4o-mini")
 
-    # 3. Text-to-Speech: Voice.AI
+    # 3. Text-to-Speech: Voice.ai
     tts = VoiceAiTTSService(
         api_key=voiceai_api_key,
         voice_id=os.getenv("VOICEAI_VOICE_ID"),  # Optional custom voice
@@ -113,7 +113,7 @@ async def main():
             top_p=0.8,
         ),
     )
-    logger.info("[OK] TTS: Voice.AI")
+    logger.info("[OK] TTS: Voice.ai")
 
     # Define the conversation context
     messages = [
@@ -121,7 +121,7 @@ async def main():
             "role": "system",
             "content": (
                 "You are a helpful voice assistant. Your responses will be spoken aloud using "
-                "Voice.AI text-to-speech, so keep your answers concise and conversational. "
+                "Voice.ai text-to-speech, so keep your answers concise and conversational. "
                 "Avoid using special characters, bullet points, or formatting that doesn't "
                 "work well in speech. Be friendly and engaging."
             ),
@@ -142,7 +142,7 @@ async def main():
             stt,  # Speech-to-text
             user_aggregator,  # User turn aggregation
             llm,  # Language model
-            tts,  # Text-to-speech (Voice.AI)
+            tts,  # Text-to-speech (Voice.ai)
             transport.output(),  # Speaker output
             assistant_aggregator,  # Assistant turn aggregation
         ]
@@ -170,7 +170,7 @@ async def main():
     # Run the bot
     logger.info("=" * 70)
     logger.info("Bot is ready! Start speaking into your microphone...")
-    logger.info("The bot will respond using Voice.AI TTS")
+    logger.info("The bot will respond using Voice.ai TTS")
     logger.info("Press Ctrl+C to exit")
     logger.info("=" * 70)
 

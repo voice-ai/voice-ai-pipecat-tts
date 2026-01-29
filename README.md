@@ -1,10 +1,10 @@
-# Voice.AI TTS Service for Pipecat
+# Voice.ai TTS Service for Pipecat
 
-An official integration for [Voice.AI](https://voice.ai) text-to-speech (TTS) with [Pipecat](https://github.com/pipecat-ai/pipecat).
+An official integration for [Voice.ai](https://voice.ai) text-to-speech (TTS) with [Pipecat](https://github.com/pipecat-ai/pipecat).
 
 ## Overview
 
-This integration provides streaming text-to-speech capabilities using Voice.AI's WebSocket API. 
+This integration provides streaming text-to-speech capabilities using Voice.ai's WebSocket API. 
 
 ## Features
 
@@ -17,7 +17,7 @@ This integration provides streaming text-to-speech capabilities using Voice.AI's
 ### Prerequisites
 
 - Python 3.10 or higher
-- Voice.AI API key (get one at [voice.ai](https://voice.ai))
+- Voice.ai API key (get one at [voice.ai](https://voice.ai))
 
 ### Install
 
@@ -133,15 +133,15 @@ For more help, open an issue or join the [Pipecat Discord](https://discord.gg/pi
 
 ## Technical Details
 
-- **Base Class**: `InterruptibleTTSService` from Pipecat
+- **Base Class**: `AudioContextTTSService` from Pipecat
 - **Connection**: Persistent WebSocket with automatic reconnection
 - **Audio Format**: Raw PCM at 32kHz mono (no decoding libraries needed)
 - **Tested with**: Pipecat v0.0.100+
 
 ## Links
 
-- [Voice.AI Website](https://voice.ai)
-- [Voice.AI API Documentation](https://voice.ai/docs/api-reference/text-to-speech/single-context-websocket)
+- [Voice.ai Website](https://voice.ai)
+- [Voice.ai API Documentation](https://voice.ai/docs/api-reference/text-to-speech/multi-context-websocket)
 - [Pipecat Framework](https://github.com/pipecat-ai/pipecat)
 - [Pipecat Documentation](https://docs.pipecat.ai)
 - [Pipecat Discord](https://discord.gg/pipecat)
@@ -155,7 +155,7 @@ Contributions are welcome! Please ensure:
 
 ## Maintainer
 
-This integration is officially maintained by [Voice.AI](https://voice.ai).
+This integration is officially maintained by [Voice.ai](https://voice.ai).
 
 ## License
 

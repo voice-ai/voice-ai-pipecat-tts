@@ -1,9 +1,9 @@
-# Voice.AI TTS Service for Pipecat - Dependencies
+# Voice.ai TTS Service for Pipecat - Dependencies
 
 # Core Pipecat framework (tested with v0.0.101+)
 pipecat-ai>=0.0.101
 
-# WebSocket support (required for Voice.AI WebSocket API)
+# WebSocket support (required for Voice.ai WebSocket API)
 websockets>=14.0
 
 # Environment variable management

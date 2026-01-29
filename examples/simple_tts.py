@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# Simple test script for Voice.AI TTS service
+# Simple test script for Voice.ai TTS service
 #
-# This script tests the Voice.AI TTS service without requiring a full transport setup.
+# This script tests the Voice.ai TTS service without requiring a full transport setup.
 # It generates raw PCM audio and saves it to a file for verification.
 #
 
@@ -23,7 +23,7 @@ load_dotenv()
 
 
 async def test_voiceai():
-    """Simple test of Voice.AI TTS service."""
+    """Simple test of Voice.ai TTS service."""
 
     # Check for API key
     api_key = os.getenv("VOICEAI_API_KEY")
@@ -33,7 +33,7 @@ async def test_voiceai():
         logger.error("  VOICEAI_API_KEY=vk_your_api_key_here")
         return
 
-    logger.info("Initializing Voice.AI TTS service...")
+    logger.info("Initializing Voice.ai TTS service...")
 
     # Initialize the service
     tts = VoiceAiTTSService(
@@ -112,7 +112,7 @@ async def test_voiceai():
 
 
 if __name__ == "__main__":
-    logger.info("Voice.AI TTS Service - Simple Test")
+    logger.info("Voice.ai TTS Service - Simple Test")
     logger.info("=" * 60)
     asyncio.run(test_voiceai())
 
